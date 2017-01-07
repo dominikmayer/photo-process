@@ -28,6 +28,7 @@ executable photo-process-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , photo-process
+                     , directory
   default-language:    Haskell2010
 
 test-suite photo-process-test

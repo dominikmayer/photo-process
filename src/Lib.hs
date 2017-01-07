@@ -8,7 +8,8 @@ import Data.Map
 photoProcess :: [FilePath] -> IO ()
 photoProcess arguments = do
   dateStrings <- getDateStringFromFileList arguments
-  putStrLn ("photoProcess: " ++ (unwords dateStrings))
+  putStrLn "photoProcess"
+  mapM_ putStrLn dateStrings
 
 getDateStringFromFileList :: [FilePath] -> IO [String]
 getDateStringFromFileList = mapM getDateStringFromFile
@@ -24,5 +25,5 @@ exifToString (Right exifMap) = timeToString exifMap
 
 timeToString :: Map ExifTag ExifValue -> String
 timeToString exifMap = case getDateTimeOriginal exifMap of
-  Just localTime -> formatTime defaultTimeLocale "%m/%d/%Y %I:%M %p" localTime
+  Just localTime -> formatTime defaultTimeLocale "%Y-%m-%d - %H-%M-%S" localTime
   Nothing -> "Nothing"
