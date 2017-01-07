@@ -10,16 +10,37 @@ main :: IO ()
 main = getArgs >>= parseArgs
 
 parseArgs :: [String] -> IO ()
-parseArgs [] = do
+parseArgs [] = runDefault
+parseArgs [path] = processDirectory path
+parseArgs args = photoProcess args
+
+runDefault :: IO ()
+runDefault = do
   putStrLn "No file specified. Running on directory."
   currentDirectory <- getCurrentDirectory
-  filesAndDirectories <- listDirectory currentDirectory
-  let imagePaths = filter filterImages filesAndDirectories
+  imagePaths <- getFilesFromDirectory currentDirectory
   photoProcess imagePaths
-parseArgs args = photoProcess args
+
+getFilesFromDirectory :: FilePath -> IO [FilePath]
+getFilesFromDirectory directory = do
+  filesAndDirectories <- listDirectory directory
+  return (filter filterImages filesAndDirectories)
 
 filterImages :: FilePath -> Bool
 filterImages file = isSuffixOf "jpg" file
                  || isSuffixOf "jpeg" file
                  || isSuffixOf "JPG" file
                  || isSuffixOf "JPEG" file
+
+processDirectory :: String -> IO ()
+processDirectory path = do
+  isDirectory <- doesDirectoryExist path
+  if (isDirectory)
+    then do
+      putStrLn "You asked me to work on a directory."
+      files <- getFilesFromDirectory path
+      let relativePaths = map ((path ++ "/") ++) files
+      absolutePaths <- mapM makeAbsolute relativePaths
+      photoProcess absolutePaths
+    else do
+      photoProcess [path]
