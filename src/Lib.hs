@@ -24,29 +24,9 @@ data Media = Photo { path :: FilePath
 
 photoProcess :: [FilePath] -> IO ()
 photoProcess paths = do
-  dateStrings <- getDateStringFromFileList paths
-  putStrLn "I found images from the following times:"
-  mapM_ putStrLn dateStrings
-  putStrLn "Media:"
+  putStrLn "I found the following media files:"
   media <- mapM classifyFile paths
   mapM_ print media
-
-getDateStringFromFileList :: [FilePath] -> IO [String]
-getDateStringFromFileList = mapM getDateStringFromFile
-
-getDateStringFromFile :: FilePath -> IO String
-getDateStringFromFile filePath = do
-  exifData <- parseFileExif filePath
-  return (exifToTimeString exifData)
-
-exifToTimeString :: Either String (Map ExifTag ExifValue) -> String
-exifToTimeString (Left message) = message
-exifToTimeString (Right exifMap) = timeToString exifMap
-
-timeToString :: Map ExifTag ExifValue -> String
-timeToString exifMap = case getDateTimeOriginal exifMap of
-  Just localTime -> formatTime defaultTimeLocale "%Y-%m-%d - %H-%M-%S" localTime
-  Nothing -> "No time available."
 
 getExifTime :: FilePath -> IO (Maybe LocalTime)
 getExifTime filePath = do
@@ -79,3 +59,4 @@ getLocalizedModificationTime filePath = do
 
 --TODO: Use ZonedTime
 --TODO: Use detection of summertime
+--  Just localTime -> formatTime defaultTimeLocale "%Y-%m-%d - %H-%M-%S" localTime
