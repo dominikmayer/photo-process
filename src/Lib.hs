@@ -4,10 +4,11 @@ import Graphics.HsExif
 import Data.Time.Format
 import Data.Time.LocalTime
 import Data.Map
+import System.Directory
 
 data Media = Photo { path :: FilePath
                    , exifTime :: LocalTime
-                   --, fileTime :: LocalTime
+                   , fileTime :: LocalTime
                    }
            | LivePhoto { photoPath :: FilePath
                        , videoPath :: FilePath
@@ -15,7 +16,7 @@ data Media = Photo { path :: FilePath
                        , fileTime :: LocalTime
                        }
            | Image { path :: FilePath
-                   --, fileTime :: LocalTime
+                   , fileTime :: LocalTime
                    }
            | Video { path :: FilePath
                    --, fileTime :: LocalTime
@@ -58,10 +59,23 @@ exifToLocalTime (Right exifMap) = getDateTimeOriginal exifMap
 
 classifyFile :: FilePath -> IO Media
 classifyFile filePath = do
-  localTime <- getExifTime filePath
-  case localTime of
+  modificationTime <- getLocalizedModificationTime filePath
+  exifTime <- getExifTime filePath
+  case exifTime of
     Just time -> return Photo { path = filePath
                                , exifTime = time
+                               , fileTime = modificationTime
                                }
     Nothing -> return Image { path = filePath
+                            , fileTime = modificationTime
                             }
+
+getLocalizedModificationTime :: FilePath -> IO LocalTime
+getLocalizedModificationTime filePath = do
+  modificationTime <- getModificationTime filePath
+  currentTimeZone <- getTimeZone modificationTime
+  return (utcToLocalTime currentTimeZone modificationTime)
+
+
+--TODO: Use ZonedTime
+--TODO: Use detection of summertime

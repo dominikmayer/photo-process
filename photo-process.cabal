@@ -20,6 +20,7 @@ library
                      , hsexif
                      , time
                      , containers
+                     , directory
   default-language:    Haskell2010
 
 executable photo-process-exe
