@@ -24,13 +24,7 @@ runDefault = do
 getFilesFromDirectory :: FilePath -> IO [FilePath]
 getFilesFromDirectory directory = do
   filesAndDirectories <- listDirectory directory
-  return (filter filterImages filesAndDirectories)
-
-filterImages :: FilePath -> Bool
-filterImages file = isSuffixOf "jpg" file
-                 || isSuffixOf "jpeg" file
-                 || isSuffixOf "JPG" file
-                 || isSuffixOf "JPEG" file
+  return (filter fileIsMedia filesAndDirectories)
 
 processDirectory :: String -> IO ()
 processDirectory path = do
